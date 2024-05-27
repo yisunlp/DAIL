@@ -1,4 +1,4 @@
-## Beware of Model Collapse! Fast and Stable Test-time Adaptation for Robust Question Answering
+## Demonstration Augmentation for Zero-shot In-context Learning
 
 This is the official project repository for our paper *Demonstration Augmentation for Zero-shot In-context Learning* (ACL 2024, Findings).
 
