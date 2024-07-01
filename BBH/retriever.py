@@ -71,16 +71,19 @@ class DynamicReteiever:
 
     def resize(self):
         if self.args.exit_strategy == "random":
-            indices = torch.tensor(random.choices(range(self.args.M), k=self.args.M // 2)).to(self.args.device)
+            indices = torch.tensor(random.choices(range(self.args.K), k=self.args.K // 2))
         elif self.args.exit_strategy == "fifo":
-            indices = torch.tensor(range(self.args.M // 2)).to(self.args.device)
+            indices = torch.tensor(range(self.args.K // 2,self.args.K))
         elif self.args.exit_strategy == "diverse":
             embeds = torch.stack([sample.embed for sample in self.demonstrations], dim=0)
             sim_scores = []
             for i in range(embeds.size(0)):
                 sim_scores.append(torch.mean(torch.cosine_similarity(embeds[i], embeds, dim=-1)))
             sim_scores = torch.stack(sim_scores, dim=0)
-            values, indices = torch.topk(sim_scores, k=self.args.M // 2, largest=True)
+            sim_scores = self.normalize(sim_scores)
+            entropy_scores = self.normalize(torch.stack([sample.entropy for sample in self.demonstrations], dim=0))
+            scores = sim_scores - self.args.alpha * entropy_scores
+            values, indices = torch.topk(scores, k=self.args.K // 2, largest=False)
         else:
             print("exit_strategy is not effective.")
             return
